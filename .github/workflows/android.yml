@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,11 +27,14 @@ jobs:
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Grant execute for gradlew
+        shell: bash
         run: chmod +x gradlew
 
-      # <-- Bagian penting: pastikan hanya ini, tidak ada teks lain di belakang
       - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug
+        shell: bash
+        run: |
+          set -e
+          ./gradlew :app:assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
