@@ -23,15 +23,18 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      # HANYA install 34.0.0 (hapus 34.0.2 yang bikin error)
       - name: Accept SDK Licenses & Install
+        shell: bash
         run: |
           yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "build-tools;34.0.2"
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v2
 
-      - name: Build with Gradle (safe args)
+      # Build via action (aman dari teks nempel)
+      - name: Build with Gradle (debug)
         uses: gradle/gradle-build-action@v3
         with:
           arguments: ":app:assembleDebug"
