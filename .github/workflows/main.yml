@@ -23,17 +23,26 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # HANYA install 34.0.0 (hapus 34.0.2 yang bikin error)
-      - name: Accept SDK Licenses & Install
+      # 1) Accept licenses (jangan gagal walau ada 'Broken pipe')
+      - name: Accept SDK licenses (no-fail)
         shell: bash
         run: |
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
+      # 2) Install paket SDK (dengan fallback versi build-tools)
+      - name: Install SDK packages
+        shell: bash
+        run: |
+          set -e
+          sdkmanager "platform-tools" "platforms;android-34"
+          # coba 34.0.0, kalau tidak ada coba 35.0.0
+          sdkmanager "build-tools;34.0.0" || sdkmanager "build-tools;35.0.0"
+
+      # (Opsional) Validasi wrapper; hapus step ini bila nanti error karena jar tidak ada
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v2
 
-      # Build via action (aman dari teks nempel)
+      # Build aman via Gradle Build Action (tidak ada argumen nempel URL)
       - name: Build with Gradle (debug)
         uses: gradle/gradle-build-action@v3
         with:
