@@ -1,4 +1,5 @@
 name: Build APK
+
 on:
   push:
     branches: [ "main", "master" ]
@@ -7,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,6 +24,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install SDK packages (API 34)
+        shell: bash
         run: |
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
@@ -29,11 +32,21 @@ jobs:
         shell: bash
         run: chmod +x gradlew
 
-      - name: Build Debug APK
+      # === LANGKAH B: tulis script build, lalu jalankan ===
+      - name: Write build script
         shell: bash
         run: |
+          cat > build.sh <<'EOF'
+          #!/usr/bin/env bash
           set -e
           ./gradlew :app:assembleDebug
+          EOF
+          chmod +x build.sh
+
+      - name: Build Debug APK (via script)
+        shell: bash
+        run: ./build.sh
+      # === ===================== ===================== ===
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
